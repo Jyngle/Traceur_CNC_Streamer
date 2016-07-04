@@ -95,6 +95,7 @@ void Menu::read_file(QString port, QString gcode){
     pinMode (3, INPUT) ;
     wiringPiISR(0,INT_EDGE_RISING,anti_rebond);
     QStringList liste;
+    QStringList liste_output;
     //BOUTONS IMPLEMENTATION
 
     QString filename = QCoreApplication::applicationDirPath() + "/" + gcode;
@@ -117,6 +118,13 @@ void Menu::read_file(QString port, QString gcode){
     {
 
         ligne = fichier_in.readLine();
+        if (ligne.contains("OUTPUT")){
+            liste_output = ligne.split(" ");
+            pinMode(liste_output[1].toInt(),OUTPUT);
+            digitalWrite(liste_output[1].toInt(),liste_output[2].toInt());
+            ligne = "OUTPUT";
+        }
+
         serial.send_rep_COM(ligne);
 
         if (flip == 1){
