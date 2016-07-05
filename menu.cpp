@@ -125,6 +125,19 @@ void Menu::read_file(QString port, QString gcode){
             ligne = "OUTPUT";
         }
 
+        if (ligne.contains("PAUSE")){
+        liste_output = ligne.split(" ");
+        QThread::msleep(liste_output[1].toInt());
+        ligne = "PAUSE";
+        }
+
+        if (ligne.contains("INPUT")){
+        liste_output = ligne.split(" ");
+        pinMode(liste_output[1].toInt(),INPUT);
+        while(digitalRead(liste_output[1].toInt()) != liste_output[2].toInt()){}
+        ligne = "INPUT";
+        }
+
         serial.send_rep_COM(ligne);
 
         if (flip == 1){
