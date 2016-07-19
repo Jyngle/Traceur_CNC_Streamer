@@ -15,8 +15,7 @@ Serial serial;
 //BOUTONS
 float last_timer = 0;
 QTime timer;
-int flip = 0;
-int flip2 = 0;
+int pause = 0;
 //BOUTONS
 
 void anti_rebond(){
@@ -93,7 +92,6 @@ void Menu::read_file(QString gcode){
         pinMode (2, INPUT) ;
         pinMode (3, INPUT) ;
         wiringPiISR(0,INT_EDGE_RISING,anti_rebond);
-        QStringList liste;
         QStringList liste_output;
     //BOUTONS IMPLEMENTATION
 
@@ -139,17 +137,7 @@ void Menu::read_file(QString gcode){
 
         serial.send_rep_COM(ligne);
 
-        if (flip == 1){
-                  qDebug() << "Pause";
-                  QThread::msleep(1000);
-                  flip2 = 1;
-      }
-
-        if (flip2 ==1){
-                   flip2 = 0;
-                   QThread::msleep(1000);
-                   qDebug()<<"reprise du cycle";
-               }
+        while (pause ==1){}
 
     }
     }
@@ -181,9 +169,9 @@ void Menu::read_file(QString gcode){
 
   void Menu::pause(){
       qDebug()<<"initiate pause";
-      if (flip == 0){
-    flip = 1;}
-      else if (flip ==1){
-       flip = 0;}
+      if (pause == 0){
+    pause = 1;}
+      else if (pause ==1){
+       pause = 0;}
 }
 
