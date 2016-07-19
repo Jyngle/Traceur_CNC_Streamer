@@ -10,11 +10,10 @@ int main(int argc, char *argv[])
 
     switch (argc){
 
-    case 3:
+    case 2:
     {
-        QString port(argv[1]);
-        QString gcode(argv[2]);
-        menu.read_file(port,gcode);
+        QString gcode(argv[1]);
+        menu.read_file(gcode);
         break;
     }
     default:

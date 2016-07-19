@@ -10,7 +10,7 @@ class Serial
 {    
 
 public:
-    void set_COM(QString port_COM);
+    void set_COM();
     QString send_rep_COM(QString str);
 
 private:

@@ -12,20 +12,6 @@
 
 Serial serial;
 
-//BOUTONS
-float last_timer = 0;
-QTime timer;
-int flip = 0;
-int flip2 = 0;
-//BOUTONS
-
-void anti_rebond(){
-    if ((timer.elapsed() - last_timer) >= 200){
-        Menu::pause();
-        last_timer = timer.elapsed();
-    }
-}
-
 void Menu::show(){
 
     QTextStream stream(stdin);
@@ -41,7 +27,7 @@ void Menu::show(){
     printf("Port COM : ");
     port_COM = stream.readLine();
 
-    serial.set_COM(port_COM); //ouverture du port
+    serial.set_COM(); //ouverture du port
 
     while(true){
 
@@ -84,27 +70,14 @@ void Menu::show(){
 }
 
 
-void Menu::read_file(QString port, QString gcode){
-
-    //BOUTONS IMPLEMENTATION
-    timer.start();
-    wiringPiSetup();
-    pinMode (0, INPUT) ;
-    pinMode (1, INPUT) ;
-    pinMode (2, INPUT) ;
-    pinMode (3, INPUT) ;
-    wiringPiISR(0,INT_EDGE_RISING,anti_rebond);
-    QStringList liste;
-    QStringList liste_output;
-    //BOUTONS IMPLEMENTATION
+void Menu::read_file(QString gcode){
 
     QString filename = QCoreApplication::applicationDirPath() + "/" + gcode;
     QFile fichier_Gcode(filename);
     fichier_Gcode.open(QIODevice::ReadOnly |QIODevice::Text);
     QTextStream fichier_in(&fichier_Gcode);
 
-    serial.set_COM(port);
-    QThread::msleep(1000);
+    serial.set_COM();
 
     if(!fichier_Gcode.exists())
        {
@@ -118,50 +91,7 @@ void Menu::read_file(QString port, QString gcode){
     {
 
         ligne = fichier_in.readLine();
-        if (ligne.contains("OUTPUT")){
-            liste_output = ligne.split(" ");
-            pinMode(liste_output[1].toInt(),OUTPUT);
-            digitalWrite(liste_output[1].toInt(),liste_output[2].toInt());
-            ligne = "OUTPUT";
-        }
-
-        if (ligne.contains("PAUSE")){
-        liste_output = ligne.split(" ");
-        QThread::msleep(liste_output[1].toInt());
-        ligne = "PAUSE";
-        }
-
-        if (ligne.contains("INPUT")){
-        liste_output = ligne.split(" ");
-        pinMode(liste_output[1].toInt(),INPUT);
-        while(digitalRead(liste_output[1].toInt()) != liste_output[2].toInt()){}
-        ligne = "INPUT";
-        }
-
         serial.send_rep_COM(ligne);
-
-        if (flip == 1){
-            qDebug() << "Pause";
-            QThread::msleep(1000);
-            flip2 = 1;
-            liste = parse_pos(serial.send_rep_COM("?"));
-        }
-
-        while(flip ==1){
-            while(digitalRead(1) == 0){serial.send_rep_COM("G91\rG0 X50 Y0\rG90");QThread::msleep(100);}
-            while(digitalRead(2) == 0){serial.send_rep_COM("G91\rG0 X-50 Y0\rG90");QThread::msleep(100);}
-            while(digitalRead(3) == 0){serial.send_rep_COM("G91\rG0 X0 Y50\rG90");QThread::msleep(100);}
-        }
-
-        if (flip2 ==1){
-            serial.send_rep_COM("G0 X" + liste[1].remove(0, 5) + " Y" + liste[2]);
-            serial.send_rep_COM("G1 Z" + liste[3]);
-            flip2 = 0;QThread::msleep(1000);
-            qDebug()<<"reprise du cycle";
-        }
-
-
-        //send_php(serial.send_rep_COM("?"));
 
     }
     }
@@ -191,18 +121,5 @@ void Menu::read_file(QString port, QString gcode){
 
   }
 
-  void Menu::pause(){
-      qDebug()<<"initiate pause";
-      if (flip == 0){
-    flip = 1;}
-      else if (flip ==1){
-       flip = 0;}
-  }
-
- QStringList Menu::parse_pos(QString pos){
-    QStringList liste;
-    liste = pos.split(',');
-    return liste;
- }
 
 
