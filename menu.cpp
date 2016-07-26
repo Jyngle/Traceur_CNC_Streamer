@@ -15,7 +15,7 @@ Serial serial;
 //BOUTONS
 float last_timer = 0;
 QTime timer;
-int pause = 0;
+int sleep = 0;
 //BOUTONS
 
 void anti_rebond(){
@@ -137,7 +137,7 @@ void Menu::read_file(QString gcode){
 
         serial.send_rep_COM(ligne);
 
-        while (pause ==1){}
+        while (sleep ==1){}
 
     }
     }
@@ -169,9 +169,9 @@ void Menu::read_file(QString gcode){
 
   void Menu::pause(){
       qDebug()<<"initiate pause";
-      if (pause == 0){
-    pause = 1;}
-      else if (pause ==1){
-       pause = 0;}
+      if (sleep == 0){
+    sleep = 1;}
+      else if (sleep ==1){
+       sleep = 0;}
 }
 
