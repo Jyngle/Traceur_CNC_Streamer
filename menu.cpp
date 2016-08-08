@@ -11,19 +11,7 @@
 #include <wiringPi.h>
 
 Serial serial;
-
-//BOUTONS
-float last_timer = 0;
-QTime timer;
 int sleep = 0;
-//BOUTONS
-
-void anti_rebond(){
-    if ((timer.elapsed() - last_timer) >= 200){
-        Menu::pause();
-        last_timer = timer.elapsed();
-    }
-}
 
 void Menu::show(){
 
@@ -84,16 +72,13 @@ void Menu::show(){
 
 void Menu::read_file(QString gcode){
 
-    //BOUTONS IMPLEMENTATION
-        timer.start();
         wiringPiSetup();
         pinMode (0, INPUT) ;
         pinMode (1, INPUT) ;
         pinMode (2, INPUT) ;
         pinMode (3, INPUT) ;
-        wiringPiISR(0,INT_EDGE_RISING,anti_rebond);
+        wiringPiISR(0,INT_EDGE_RISING,pause);
         QStringList liste_output;
-    //BOUTONS IMPLEMENTATION
 
     QString filename = QCoreApplication::applicationDirPath() + "/" + gcode;
     QFile fichier_Gcode(filename);
@@ -137,7 +122,10 @@ void Menu::read_file(QString gcode){
 
         serial.send_rep_COM(ligne);
 
-        while (sleep ==1){}
+        while (sleep ==1){
+            //Fleches de direction
+
+        }
 
     }
     }
