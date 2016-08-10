@@ -5,14 +5,18 @@
 void Serial::set_COM()
 {
     int nb;
+    int check = 0;
     QList<QSerialPortInfo> liste = QSerialPortInfo::availablePorts();
     for (int i = 0;i<liste.size();i++){
         if (liste[i].manufacturer() == "Arduino (www.arduino.cc)"){
             serial.setPortName(liste[i].portName());
             nb = i;
+            check = 1;
 
         }
     }
+    if(check == 0){exit(1);}
+
         // Check info sur le port
     qDebug() << "Nom        : " << liste[nb].portName();
     qDebug() << "Manufacturer: " << liste[nb].manufacturer();
