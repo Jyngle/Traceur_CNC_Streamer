@@ -13,6 +13,15 @@
 Serial serial;
 int sleep = 0;
 
+int pause_b = 26;
+int haut = 5;
+int bas = 6 ;
+int droite = 9;
+int gauche = 11;
+int z_haut = 19;
+int z_bas = 13;
+
+
 void Menu::show(){
 
     QTextStream stream(stdin);
@@ -72,12 +81,16 @@ void Menu::show(){
 
 void Menu::read_file(QString gcode){
 
-        wiringPiSetup();
-        pinMode (0, INPUT) ;
-        pinMode (1, INPUT) ;
-        pinMode (2, INPUT) ;
-        pinMode (3, INPUT) ;
-        wiringPiISR(0,INT_EDGE_RISING,pause);
+        wiringPiSetupGpio();
+        pinMode (pause_b, INPUT) ;
+        pinMode (haut, INPUT) ;
+        pinMode (bas, INPUT) ;
+        pinMode (droite, INPUT) ;
+        pinMode (gauche, INPUT) ;
+        pinMode (z_haut, INPUT) ;
+        pinMode (z_bas, INPUT) ;
+
+        wiringPiISR(26,INT_EDGE_RISING,pause);
         QStringList liste_output;
 
     QString filename = QCoreApplication::applicationDirPath() + "/" + gcode;
@@ -122,10 +135,18 @@ void Menu::read_file(QString gcode){
 
         serial.send_rep_COM(ligne);
 
+     if(sleep == 1){
         while (sleep ==1){
-            //Fleches de direction
 
+            while(!digitalRead(droite)){serial.send_rep_COM("G91 \n G00 X1 Y0 \n G90");}
+            while(!digitalRead(gauche)){serial.send_rep_COM("G91 \n G00 X-1 Y0 \n G90");}
+            while(!digitalRead(haut)){serial.send_rep_COM("G91 \n G00 X0 Y1 \n G90");}
+            while(!digitalRead(bas)){serial.send_rep_COM("G91 \n G00 X0 Y-1 \n G90");}
+            while(!digitalRead(z_haut)){serial.send_rep_COM("G91 \n G00 X0 Y0 Z0.1 \n G90");}
+            while(!digitalRead(z_bas)){serial.send_rep_COM("G91 \n G00 X0 Y0 Z-0.1 \n G90");}
         }
+        serial.send_rep_COM(ligne);
+     }
 
     }
     }
