@@ -145,7 +145,12 @@ void Menu::read_file(QString gcode){
             while(!digitalRead(z_haut)){serial.send_rep_COM("G91 \n G00 X0 Y0 Z0.1 \n G90");}
             while(!digitalRead(z_bas)){serial.send_rep_COM("G91 \n G00 X0 Y0 Z-0.1 \n G90");}
         }
-        serial.send_rep_COM(ligne);
+        if(ligne.contains("Z")){
+            QString z = "Z";
+            serial.send_rep_COM(ligne.split("Z")[0]);
+            serial.send_rep_COM(z.append(ligne.split("Z")[1]));
+        }
+        else{serial.send_rep_COM(ligne);}
      }
 
     }
